@@ -1,0 +1,4 @@
+/home/brip/Documents/Prueba/build/CMakeFiles/rebuild_cache.dir
+/home/brip/Documents/Prueba/build/CMakeFiles/edit_cache.dir
+/home/brip/Documents/Prueba/build/CMakeFiles/Esteno.dir
+/home/brip/Documents/Prueba/build/CMakeFiles/Clases.dir

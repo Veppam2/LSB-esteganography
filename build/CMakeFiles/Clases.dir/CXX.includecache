@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/brip/Documents/Prueba/EstenografoLSB.cpp
+iostream
+-
+string
+-
+experimental/filesystem
+-
+bitset
+-
+opencv4/opencv2/opencv.hpp
+-
+fstream
+-
+EstenografoLSB.h
+/home/brip/Documents/Prueba/EstenografoLSB.h
+
+/home/brip/Documents/Prueba/EstenografoLSB.h
+string
+-
+bitset
+-
+opencv4/opencv2/core/matx.hpp
+-
+

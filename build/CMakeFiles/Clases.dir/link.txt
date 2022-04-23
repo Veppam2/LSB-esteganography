@@ -1,0 +1,2 @@
+/usr/bin/ar qc libClases.a CMakeFiles/Clases.dir/EstenografoLSB.cpp.o
+/usr/bin/ranlib libClases.a
