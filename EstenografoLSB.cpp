@@ -3,7 +3,7 @@
 #include <experimental/filesystem>
 
 #include <bitset>
-#include <opencv4/opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include <fstream>
 
 #include "EstenografoLSB.h"
@@ -24,30 +24,10 @@ void EstenografoLSB::oculta(string dirImg, string dirTxt, string dirSalida){
 	
 	Mat_<Vec4b> image = imread(dirImg, IMREAD_UNCHANGED);
 	ifstream file(dirTxt);	
-
-	/*
-	Vec4b x = image(0,0);
-	cout << x << endl;
-	cout << bitset<8> ('A')[0] << endl;
-	cout << bitset<8> ('A') << endl;
-	*/
 	
 	int cont = 0;
-	//while( !file.eof() &&  file.get(c) ){
 	char c;
 	file.get(c);
-	//cout << bitset<8>( string("10001111") );
-
-	/*
-	while( file.get(c) ){
-		cout << c << " :' " << (char)bitset<8>(c) << cont++  <<endl;
-	}
-	*/
-	/*
-	cout << image(0,0) << endl;
-	cout << image(0,0)[0] << endl;
-	cout << bitset<8>(image(0,0)[0]) << endl;
-	*/
 
 	bool todoElArchivoOculto = file.eof();
 
@@ -55,24 +35,25 @@ void EstenografoLSB::oculta(string dirImg, string dirTxt, string dirSalida){
 
 	int bit_actual = 0;
 	
-	Vec4b x = image(0,0);
-	cout << x << endl;
-	for(int i = 0;i<image.rows && !todoElArchivoOculto ; ++i){
-		for(int j = 0;j<image.cols && !todoElArchivoOculto; ++j){
+	int i = 0;
+	int j = 0;
+	for(i = 0;i<image.rows && !todoElArchivoOculto ; i++){
+		for(j = 0;j<image.cols && !todoElArchivoOculto; j++){
 
 			Vec4b pixel= image(i,j);
-			//Modifica pixel con los 4 bits de 8
-
-			for(int i = 0; i<4; i++){
-				cout <<c <<": " << charBits << endl;
-				//cout << "bts >>" << bit_actual << endl;
-				pixel[i] = modificaUltimoBit(
-						pixel[i],
+			//Modifica pixel
+			
+			for(int indice = 0; indice<4; indice++){
+				pixel[indice] = modificaUltimoBit(
+						pixel[indice],
 					       	(charBits>>bit_actual),
 						charBits[bit_actual]
 					);
 				bit_actual++;
 			}
+			//Actualiza pixel
+			image.at<Vec4b>(i,j) = pixel;
+
 
 			if(bit_actual == 8){
 				//Lee otro caracter
@@ -83,19 +64,11 @@ void EstenografoLSB::oculta(string dirImg, string dirTxt, string dirSalida){
 				bit_actual =0;
 			}
 
-			/*
-			Vec4b pixelOriginal = image(i,j);
-			//cout << y << endl;
-
-			Vec4b& pixelModificado = image2.at<Vec4b>(i,j);
-			pixelModificado[0] = pixelOriginal[2]/2;
-			pixelModificado[1] = pixelOriginal[0]/2;
-			pixelModificado[2] = pixelOriginal[1]/2;
-			pixelModificado[3] = pixelOriginal[3];
-			*/
-
+			if(todoElArchivoOculto)
+				image = marcarFinDeArchivoEnImagen(i, j, image );
 		}
 	}
+	
 
 	file.close();
 
@@ -108,6 +81,86 @@ void EstenografoLSB::oculta(string dirImg, string dirTxt, string dirSalida){
 
 void EstenografoLSB::devela(string dirImg, string dirTxt){
 	cout << "devela: " << dirImg << " : " << dirTxt << endl;
+	
+	if( !validaDireccionImagen(dirImg) )
+		return;
+
+	Mat_<Vec4b> image = imread(dirImg, IMREAD_UNCHANGED);
+	ofstream file(dirTxt);
+
+	char c;
+	bitset<8> charBits (string ("00000000") );
+	bool lecturaCompleta = false;
+	int bit_count = 0;
+
+	for(int i = 0;i<image.rows && !lecturaCompleta ; i++){
+		for(int j = 0;j<image.cols && !lecturaCompleta; j++){
+			
+			
+			Vec4b v = image(i,j);
+
+			for(int index = 0; index < 4; index++){
+				bitset<8> bitRGB (v[index] );
+				charBits[bit_count] = bitRGB[0];
+				bit_count++;
+			}
+
+			if(bit_count == 8){
+				c = (char) charBits.to_ulong();
+
+
+				bit_count = 0;
+
+				if(c == '\0'){
+					lecturaCompleta = true;
+				}else
+					file << c;
+			}
+
+
+		}
+	}
+
+}
+
+Mat_<Vec4b> EstenografoLSB::marcarFinDeArchivoEnImagen(int i, int j, Mat_<Vec4b> image){
+	
+	/*
+	 * Dejar un caracter de final de archivo \0
+	 * */
+
+	j++;
+
+	int bit_actual = 0;
+	char c = '\0';
+	bitset<8> charBits(c);
+
+	bool termina = false;
+
+
+	for(i = i;i<image.rows && !termina ; i++){
+		for(j = j;j<image.cols && !termina; j++){
+
+			Vec4b pixel = image(i,j);
+	
+			for(int indice = 0; indice<4; indice++){
+				pixel[indice] = modificaUltimoBit(
+						pixel[indice],
+					       	(charBits>>bit_actual),
+						charBits[bit_actual]
+					);
+				bit_actual++;
+			}
+			//Actualiza pixel
+			image.at<Vec4b>(i,j) = pixel;
+
+			if(bit_actual == 8)
+				termina = true;
+		}
+	}
+
+	return image;
+	
 }
 
 uchar EstenografoLSB::modificaUltimoBit(uchar original, bitset<8> bits, bool bitPrendido){
@@ -117,23 +170,31 @@ uchar EstenografoLSB::modificaUltimoBit(uchar original, bitset<8> bits, bool bit
 	bitset<8> mascaraOR (string("11111110") );
 
 	bitset<8> bitsetOriginal = bitset<8>(original);
-	//cout << "numeroRGB: " << bitsetOriginal  << endl;
-	//cout << "trianguloP: " << bits << endl;
 
 	bitset<8> salida;
+
 	if(bitPrendido)
 		salida = (bitsetOriginal |= (bits &= mascaraAND) ); 
 	else
 		salida = (bitsetOriginal &= (bits |= mascaraOR) );
 
-	//cout << "salida: " << salida << endl;
-	//cout << endl;
-
 	return (uchar) salida.to_ulong();
 }
+bool EstenografoLSB::validaDireccionArchivoTexto(string dirTxt){
+	/*
+	 * Verificar que se pueda leer el archivo de texto a partir de la ruta del archivo
+	 * */
 
-bool EstenografoLSB::validaArchivosParaOcultar( string dirImg, string dirTxt){
+	ifstream file(dirTxt);
+	if( !file.is_open() ){
+		cout << "No se pudo obtener el texto del archivo" << endl;
+		return false;
+	}
 
+	return true;
+}
+bool EstenografoLSB::validaDireccionImagen(string dirImg){
+	
 	/*
 	 * Checar que se pueda obtener el objeto Mat_ a partir de la ruta a la imagen
 	 * */
@@ -143,18 +204,22 @@ bool EstenografoLSB::validaArchivosParaOcultar( string dirImg, string dirTxt){
 		return false;
 	}	
 
-	/*
-	 * Verificar que se pueda leer el archivo de texto a partir de la ruta del archivo
-	 * */
-	ifstream file(dirTxt);
-	if( !file.is_open() ){
-		cout << "No se pudo obtener el texto del archivo" << endl;
+	return true;
+}
+
+bool EstenografoLSB::validaArchivosParaOcultar( string dirImg, string dirTxt){
+
+	if( !validaDireccionImagen(dirImg) )
 		return false;
-	}
+
+	if( !validaDireccionArchivoTexto(dirTxt) )
+		return false;
 
 	/**
 	 * La imagen debe de tener al menos 2 bytes por cada caracter del archivo de texto para poder esconder el texto completo dentro del archivo. Dos bytes adicionales para poder poner el signo de fin de archivo '\0':
 	 * */
+	
+	Mat_<Vec4b> image = imread(dirImg, IMREAD_UNCHANGED);
 	uintmax_t tamanoDirTxt = fs::file_size(dirTxt);
 	uintmax_t tamanoDirImg = (uintmax_t)((image.rows * image.cols)/2);
 
