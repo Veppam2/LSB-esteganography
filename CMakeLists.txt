@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 2.6)
 project (Estenografia)
 
 set (CMAKE_CXX_STANDARD 11)
+set (OpenCV_DIR /home/carlos/Documentos/build)
 find_package(OpenCV REQUIRED)
 
 ADD_LIBRARY( Clases

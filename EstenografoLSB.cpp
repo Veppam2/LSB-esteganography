@@ -13,6 +13,12 @@ using namespace cv;
 
 namespace fs = std::experimental::filesystem;
 
+/**
+ * Método que realiza el proceso de ocultar un texto en una imagen
+ * DirImg -- ruta de la imagen  
+ * DirTxt -- ruta del texto  
+ * DirSalida -- ruta de salida
+ */
 void EstenografoLSB::oculta(string dirImg, string dirTxt, string dirSalida){
 	
 	cout << "ocultando: " << dirTxt << " dentro de: " << dirTxt << endl;
@@ -78,7 +84,11 @@ void EstenografoLSB::oculta(string dirImg, string dirTxt, string dirSalida){
 
 	return;
 }
-
+/**
+ * Método que realiza el proceso de develar el texto que fue oculto en una imagen
+ * DirImg -- ruta de la imagen  
+ * DirTxt -- ruta del texto
+ */
 void EstenografoLSB::devela(string dirImg, string dirTxt){
 	cout << "devela: " << dirImg << " : " << dirTxt << endl;
 	
@@ -122,7 +132,10 @@ void EstenografoLSB::devela(string dirImg, string dirTxt){
 	}
 
 }
-
+/**
+ * Coloca un caracter para marcar el final del texto
+ * image -- imagen que se uso para ocultar el texto
+ */
 Mat_<Vec4b> EstenografoLSB::marcarFinDeArchivoEnImagen(int i, int j, Mat_<Vec4b> image){
 	
 	/*
@@ -162,7 +175,12 @@ Mat_<Vec4b> EstenografoLSB::marcarFinDeArchivoEnImagen(int i, int j, Mat_<Vec4b>
 	return image;
 	
 }
-
+/**
+* Enciende/apaga el ultimo bit de la imagen dependiendo de como se encuentre el bit 
+* origunal -- caracter original
+* bits -- bits que se prenden/apagan
+* bitPrendido -- representa si el bit se encuentra prendido o apagado
+**/
 uchar EstenografoLSB::modificaUltimoBit(uchar original, bitset<8> bits, bool bitPrendido){
 	
 
@@ -180,6 +198,10 @@ uchar EstenografoLSB::modificaUltimoBit(uchar original, bitset<8> bits, bool bit
 
 	return (uchar) salida.to_ulong();
 }
+/**
+ * Verifica que la ruta del texto a ocultar sea la correcta para su lectura
+ * dirTxt -- ruta de la imagen 
+ */
 bool EstenografoLSB::validaDireccionArchivoTexto(string dirTxt){
 	/*
 	 * Verificar que se pueda leer el archivo de texto a partir de la ruta del archivo
@@ -193,6 +215,10 @@ bool EstenografoLSB::validaDireccionArchivoTexto(string dirTxt){
 
 	return true;
 }
+/**
+ * Verifica que la ruta de la imagen sea la correcta
+ * dirImg -- ruta de la imagen 
+ */
 bool EstenografoLSB::validaDireccionImagen(string dirImg){
 	
 	/*
@@ -206,7 +232,11 @@ bool EstenografoLSB::validaDireccionImagen(string dirImg){
 
 	return true;
 }
-
+/**
+ * Verifica que el archivo de texto se halla ocultado correctamente
+ * dirImg -- ruta de la imagen
+ * dirTxt -- ruta del texto
+ */
 bool EstenografoLSB::validaArchivosParaOcultar( string dirImg, string dirTxt){
 
 	if( !validaDireccionImagen(dirImg) )

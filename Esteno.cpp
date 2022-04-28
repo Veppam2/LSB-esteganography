@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <experimental/filesystem>
-#include <opencv4/opencv2/opencv.hpp>
+#include <opencv2/opencv.hpp>
 #include "EstenografoLSB.h"
 //#include <opencv4/opencv2/highgui/highgui.hpp>
 
