@@ -78,9 +78,14 @@ void EstenografoLSB::oculta(string dirImg, string dirTxt, string dirSalida){
 
 	file.close();
 
-	imwrite(dirSalida, image);
+	try{
+		imwrite(dirSalida, image);
 
-	cout << "Archivo: "<< dirTxt <<" oculto en " << dirSalida<<endl;
+		cout << "Archivo: "<< dirTxt <<" oculto en " << dirSalida<<endl;
+	}catch(Exception e){
+	
+		cout << "El archivo: " << dirSalida << " no es un formato aceptable. Tiene que ser formato png" << endl;
+	}
 
 	return;
 }
